@@ -3,6 +3,7 @@ const Vendor = require('../models/Vendor');
 const multer = require('multer');
 const path = require('path');
 
+
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
         cb(null, 'uploads/'); // Destination folder where the uploaded images will be stored
@@ -13,6 +14,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
+
 const addFirm = async(req, res) => {
     try {
         const { firmName, area, category, region, offer } = req.body;
@@ -24,9 +26,9 @@ const addFirm = async(req, res) => {
             res.status(404).json({ message: "Vendor not found" })
         }
 
-        // if (vendor.firm.length > 0) {
-        //     return res.status(400).json({ message: "vendor can have only one firm" });
-        // }
+        if (vendor.firm.length > 0) {
+            return res.status(400).json({ message: "vendor can have only one firm" });
+        }
 
         const firm = new Firm({
             firmName,
@@ -40,14 +42,16 @@ const addFirm = async(req, res) => {
 
         const savedFirm = await firm.save();
 
-        //const firmId = savedFirm._id
-        // const vendorFirmName = savedFirm.firmName
+        const firmId = savedFirm._id
+        const vendorFirmName = savedFirm.firmName
 
         vendor.firm.push(savedFirm)
+
         await vendor.save()
 
 
-        return res.status(200).json({ message: 'Firm Added successfully'});
+
+        return res.status(200).json({ message: 'Firm Added successfully ', firmId, vendorFirmName });
 
 
     } catch (error) {
@@ -71,4 +75,4 @@ const deleteFirmById = async(req, res) => {
     }
 }
 
-module.exports= {addFirm:[upload.single('image'),addFirm],deleteFirmById}
+module.exports = { addFirm: [upload.single('image'), addFirm], deleteFirmById }
